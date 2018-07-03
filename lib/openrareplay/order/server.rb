@@ -18,13 +18,27 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-*.back*
-/.bundle/
-/.yardoc
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
-*.gem
+require 'openrareplay/order/order'
+
+module OpenRAReplay
+  class ServerOrder < Order
+    def self.construct(input)
+      # Credit to Stekke for putting me on the right
+      # direction for these orders
+      command_length = decode_uleb128_io input
+      command = input.read(command_length)
+      data_length = decode_uleb128_io input
+      data = input.read(data_length)
+      new(command: command, data: data)
+    end
+
+    def server_order?
+      true
+    end
+
+    def serialize
+      (Order::SERVER_COMMAND + encode_uleb128(command.length) +
+       command + encode_uleb128(data.length) + data)
+    end
+  end
+end

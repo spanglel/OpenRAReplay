@@ -1,0 +1,99 @@
+#!/usr/bin/env ruby
+
+#    OpenRA Replay Sanitizer: Program/library to parse and generate
+#    OpenRA replay files
+#
+#    Copyright (C) 2018  Luke Spangler
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+require 'openrareplay'
+
+module OpenRAReplay
+  class PacketSanitizer
+    attr_reader :ping, :ip, :message
+  end
+end
+
+INPUT_FILE = ARGV.first.freeze
+OUTPUT_FILE = ARGV[1].freeze
+
+raise 'Please provide an input file as an argument!' if INPUT_FILE.nil? ||
+                                                        !File.file?(INPUT_FILE)
+raise 'Please provide an output file as an argument!' if OUTPUT_FILE.nil?
+
+warn INPUT_FILE
+File.open(OUTPUT_FILE, 'wb') do |output_file|
+  File.open(INPUT_FILE, 'rb') do |input_file|
+    packet_parser = OpenRAReplay::PacketParser.new(input_file)
+    player_map = {}
+    until packet_parser.eof?
+      packet_parser.read_packet do |packet|
+        next if packet.unknown?
+        newpacket = nil
+        if packet.metadata?
+          object = OpenRAReplay::MiniYaml.load(packet.data)
+          start_time = OpenRAReplay::MiniYaml.load_time(object['Root']['StartTimeUtc'])
+          epoch = Time.at(0).utc
+          start_time = start_time.to_i
+          stop_time = OpenRAReplay::MiniYaml.load_time(object['Root']['EndTimeUtc']) - start_time
+          object['Root']['StartTimeUtc'] = OpenRAReplay::MiniYaml.dump_time(epoch)
+          object['Root']['EndTimeUtc'] = OpenRAReplay::MiniYaml.dump_time(stop_time)
+          object.each_key do |key|
+            player = key.match(/^Player@(\d+)/)
+            next unless player
+            unless object[key]['IsBot']
+              object[key]['Name'] = player_map[object[key]['Name']]
+            end
+            outcome_time = OpenRAReplay::MiniYaml.load_time(object[key]['OutcomeTimestampUtc']) - start_time
+            object[key]['OutcomeTimestampUtc'] = OpenRAReplay::MiniYaml.dump_time(outcome_time)
+          end
+          newpacket = packet.class.new(data: OpenRAReplay::MiniYaml.dump(object))
+        else
+          newpacket = packet.class.new(
+            client_id: packet.client_id,
+            frame: packet.frame,
+            orders: packet.orders.reject { |o| o.command == 'Ping' || o.command == 'Pong' || o.command == 'Message' || o.command.match('Chat') || o.command == 'SyncClientPings' }.map do |order|
+              order = order
+              if order.command.match('Sync') || order.command.match('Handshake')
+                object = OpenRAReplay::MiniYaml.load order.data
+                object['Handshake']['Password'] = nil if object['Handshake'] && object['Handshake']['Password']
+                object.each_key do |key|
+                  if key =~ /^Client$/
+                    object[key]['IpAddress'] = nil
+                  elsif key =~ /^Client@\d+$/
+                    object[key]['IpAddress'] = nil
+                    unless object[key]['IsBot']
+                      unless player_map[object[key]['Name']]
+                        player_map[object[key]['Name']] = "Player #{player_map.length + 1}"
+                      end
+                      object[key]['Name'] = player_map[object[key]['Name']]
+                    end
+                  end
+                end
+                object['GlobalSettings']['ServerName'] = nil if object['GlobalSettings']
+                order = order.class.new(
+                  command: order.command,
+                  data: OpenRAReplay::MiniYaml.dump(object)
+                )
+              end
+              order
+            end
+          )
+        end
+        output_file.write newpacket.byte_array
+      end
+    end
+  end
+end

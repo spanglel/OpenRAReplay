@@ -18,13 +18,16 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-*.back*
-/.bundle/
-/.yardoc
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
-*.gem
+require 'test_helper'
+
+module OpenRAReplay
+	class Test < Minitest::Test
+	  def test_that_it_has_a_version_number
+		refute_nil ::OpenRAReplay::VERSION
+	  end
+
+	  def test_it_does_something_useful
+		assert false
+	  end
+	end
+end

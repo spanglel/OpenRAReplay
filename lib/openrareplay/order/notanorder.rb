@@ -18,13 +18,35 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-*.back*
-/.bundle/
-/.yardoc
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
-*.gem
+require 'openrareplay/order/order'
+
+module OpenRAReplay
+  class NotAnOrder < Order
+    attr_reader :special_command
+
+    def initialize(*args)
+      @unknown = !!args.last[:special_command]
+      super(*args)
+    end
+
+    def self.construct(input, char, special_command)
+      new(
+        command: char,
+        data: input.read,
+        special_command: special_command
+      )
+    end
+
+    def serialize
+      (command + data)
+    end
+
+    def special_command?
+      special_command
+    end
+
+    def order?
+      false
+    end
+  end
+end

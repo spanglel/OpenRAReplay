@@ -18,13 +18,30 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-*.back*
-/.bundle/
-/.yardoc
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
-*.gem
+require 'openrareplay/packet/packet'
+require 'openrareplay/packet/metadata_packet'
+
+module OpenRAReplay
+  class PacketParser
+    def initialize(file_stream)
+      @file_stream = file_stream
+    end
+
+    def read_packet
+      byte_array = @file_stream.read 12
+      if byte_array[0..3] == "\xFF\xFF\xFF\xFF".force_encoding('ASCII-8BIT')
+        length = byte_array[8..11].unpack('_L').first + 8
+        byte_array += @file_stream.read length
+        yield OpenRAReplay::MetadataPacket.new(byte_array: byte_array)
+      else
+        length = byte_array[4..7].unpack('_L').first - 4
+        byte_array += @file_stream.read length
+        yield OpenRAReplay::Packet.new(byte_array: byte_array)
+      end
+    end
+
+    def eof?
+      @file_stream.closed? || @file_stream.eof?
+    end
+  end
+end

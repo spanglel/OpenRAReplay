@@ -18,13 +18,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-*.back*
-/.bundle/
-/.yardoc
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
-*.gem
+require 'openrareplay/order/order'
+require 'openrareplay/order/server'
+require 'openrareplay/order/client'
+require 'openrareplay/order/notanorder'

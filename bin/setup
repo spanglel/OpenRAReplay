@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
 
 #    OpenRA Replay Sanitizer: Program/library to parse and generate
 #    OpenRA replay files
@@ -18,13 +18,10 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-*.back*
-/.bundle/
-/.yardoc
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
-*.gem
+set -euo pipefail
+IFS=$'\n\t'
+set -vx
+
+bundle install
+
+# Do any other automated setup that you need to do here

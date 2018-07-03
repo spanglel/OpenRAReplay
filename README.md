@@ -12,17 +12,21 @@
 >    GNU Affero General Public License for more details.
 
 ## Description
-A single-file program and pseudo-library that can parse OpenRA replay files and produce "sanitized" versions, without pings, exact timestamps, or 
-other unnecessary information. The long term goal is to produce a full gem project packaging both a library and an executable for reading and writing 
-to OpenRA replay files. However, the library will never support parsing non-YAML data beyond preserving it as a chunk. Examples of non-YAML data 
-includes unit and building orders.
+A library and executable that can parse OpenRA replay files and produce "sanitized" versions, without pings, exact timestamps, or other unnecessary information. The long term goal is to produce a full gem project packaging both a library and an executable for reading and writing  to OpenRA replay files. However, the library will never support parsing non-YAML data beyond preserving it as a chunk. Examples of non-YAML data includes unit and building orders.
 
 ## Requirements:
 A relatively recent version of Ruby.
 
+## Installation:
+The gem currently must be built from source, although that should only require Ruby and RubyGems.
+
+```
+gem build openrareplay.gemspec
+gem install openrareplay*.gem
+```
+
 ## Use:
-Running this command will produce a new file with as much unnecessary and personal information stripped as possible. Future versions will include more 
-configuration options.
+Running this command will produce a new file with as much unnecessary and personal information stripped as possible. Future versions will include more configuration options.
 
 ```
 ruby sanitizer.rb $INPUT_FILE $OUTPUT_FILE
