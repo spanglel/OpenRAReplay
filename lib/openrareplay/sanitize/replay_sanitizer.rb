@@ -18,20 +18,21 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-require 'openrareplay/sanitize/packet_sanitizer'
+require_relative 'packet_sanitizer'
+require_relative '../packet/packet_parser'
 
 module OpenRAReplay
   module Sanitize
     class ReplaySanitizer
       attr_reader :in_file, :out_file, :packet_sanitizer
 
-      def initialize(in_name, out_name, opts={})
+      def initialize(in_name, out_name, opts = {})
         @in_file = in_name
         @out_file = out_name
         @packet_sanitizer = OpenRAReplay::Sanitize::PacketSanitizer.new opts
       end
-      
-      def sanitize()
+
+      def sanitize
         File.open(out_file, 'wb') do |output_file|
           File.open(in_file, 'rb') do |input_file|
             packet_parser = OpenRAReplay::PacketParser.new(input_file)

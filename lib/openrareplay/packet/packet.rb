@@ -18,7 +18,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-require 'openrareplay/binary'
+require_relative '../binary'
+require_relative '../order/order'
 
 module OpenRAReplay
   class Packet

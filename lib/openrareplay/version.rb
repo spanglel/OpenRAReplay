@@ -19,5 +19,5 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 module OpenRAReplay
-  VERSION = '0.1.0'.freeze
+  VERSION = '0.1.1'.freeze
 end

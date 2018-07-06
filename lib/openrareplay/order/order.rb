@@ -18,7 +18,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-require 'openrareplay/binary'
+require_relative '../binary'
 
 module OpenRAReplay
   class Order
@@ -31,6 +31,11 @@ module OpenRAReplay
     CLIENT_COMMAND = 255.chr.freeze
     SPECIAL_COMMAND = 191.chr.freeze
 
+    def initialize(hash = {})
+      @command = hash[:command] || ''
+      @data = hash[:data] || ''
+    end
+
     def self.construct(input)
       char = input.read(1)
       case char
@@ -39,14 +44,8 @@ module OpenRAReplay
       when CLIENT_COMMAND
         return ClientOrder.construct(input)
       else
-        return NotAnOrder.construct(input, char,
-                                    char == SPECIAL_COMMAND)
+        return NotAnOrder.construct(input, char, char == SPECIAL_COMMAND)
       end
-    end
-
-    def initialize(hash = {})
-      @command = hash[:command] || ''
-      @data = hash[:data] || ''
     end
 
     def serialize
@@ -81,3 +80,7 @@ module OpenRAReplay
     alias is_ff? client_order?
   end
 end
+
+require_relative 'client'
+require_relative 'server'
+require_relative 'notanorder'

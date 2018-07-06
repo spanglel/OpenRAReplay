@@ -19,6 +19,6 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
-require 'openrareplay'
+require_relative 'openrareplay'
 
-require 'minitest/autorun'
+require_relative 'minitest/autorun'

@@ -18,7 +18,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-require 'openrareplay/order/order'
-require 'openrareplay/order/server'
-require 'openrareplay/order/client'
-require 'openrareplay/order/notanorder'
+require_relative 'order/order'
+require_relative 'order/server'
+require_relative 'order/client'
+require_relative 'order/notanorder'

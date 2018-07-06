@@ -18,6 +18,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-require 'openrareplay/packet/packet'
-require 'openrareplay/packet/metadata_packet'
-require 'openrareplay/packet/packet_parser'
+require_relative 'packet/packet'
+require_relative 'packet/metadata_packet'
+require_relative 'packet/packet_parser'

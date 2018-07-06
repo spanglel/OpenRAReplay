@@ -1,4 +1,4 @@
-# OpenRA Replay Sanitizer
+# OpenRA Replay
 >    Copyright (C) 2018  Luke Spangler
 >
 >    This program is free software: you can redistribute it and/or modify
@@ -18,19 +18,32 @@ A library and executable that can parse OpenRA replay files and produce "sanitiz
 A relatively recent version of Ruby.
 
 ## Installation:
-The gem currently must be built from source, although that should only require Ruby and RubyGems.
+```
+gem install openrareplay
 
 ```
-gem build openrareplay.gemspec
-gem install openrareplay*.gem
-```
 
-## Use:
-Running this command will produce a new file with as much unnecessary and personal information stripped as possible. Future versions will include more configuration options.
+## Usage:
+```
+Usage: openra-sanitize [options] in_file out_file
+Reads an OpenRA replay file, trims/masks it, and outputs the result as a new file
 
+Specific options:
+    -p, --ping                       Trim all ping-related content
+    -m, --message                    Trim all server messages
+    -c, --chat                       Trim all chat messages
+    -i, --ip                         Trim all IP addresses
+    -t, --time                       Mask all dates and times
+    -P, --password                   Trims the server password
+    -n, --player-name                Masks all player names
+    -s, --server-name                Trim the server name
+    -f, --force                      Force overwriting out_file
+
+Common options:
+    -h, --help                       Show this message
+        --version                    Show version
 ```
-ruby sanitizer.rb $INPUT_FILE $OUTPUT_FILE
-```
+Keep in mind that some options might not make sense without another. For instance, without removing server messages, player names would still be revealed in those messages.
 
 ![Logo of the Affero General Public License](https://www.gnu.org/graphics/agplv3-155x51.png)
 

@@ -18,5 +18,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-require 'openrareplay/sanitize/packet_sanitizer'
-require 'openrareplay/sanitize/replay_sanitizer'
+require_relative 'sanitize/packet_sanitizer'
+require_relative 'sanitize/replay_sanitizer'
+require_relative 'sanitize/cli'

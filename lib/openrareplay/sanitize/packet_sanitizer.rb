@@ -18,7 +18,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-require 'openrareplay/miniyaml'
+require_relative '../miniyaml'
 
 module OpenRAReplay
   module Sanitize
@@ -37,15 +37,15 @@ module OpenRAReplay
         @server_name = options[:server_name]
         @player_map = {}
       end
-      
+
       def sanitize_packet(packet)
         return sanitize_packet_metadata(packet) if packet.metadata?
         return sanitize_packet_normal(packet) unless packet.unknown?
         packet
       end
-      
+
       private
-      
+
       def sanitize_packet_metadata(packet)
         object = OpenRAReplay::MiniYaml.load(packet.data)
         time_placeholder = sanitize_time_packet object if time
@@ -57,36 +57,36 @@ module OpenRAReplay
         end
         packet.class.new(data: OpenRAReplay::MiniYaml.dump(object))
       end
-      
+
       def sanitize_packet_normal(packet)
         packet.class.new(
           client_id: packet.client_id,
           frame: packet.frame,
-          orders: packet.orders.reject { |o|
+          orders: packet.orders.reject do |o|
             (ping && (o.command.match('Ping') || o.command == 'Pong')) ||
             (message && o.command == 'Message') || (chat &&
             (o.command == 'Chat') || o.command == 'TeamChat')
-          }.map {|o| sanitize_order o }
+          end.map { |o| sanitize_order o }
         )
       end
-      
+
       def sanitize_order(order)
-        return order unless (order.command.match('Sync') ||
-                            order.command.match('Handshake'))
+        return order unless order.command.match('Sync') ||
+                            order.command.match('Handshake')
         object = OpenRAReplay::MiniYaml.load order.data
         sanitize_password object if password
         sanitize_server_name object if server_name
         object.each_key do |key|
-          next unless (key == 'Client' || key =~ /^Client@\d+$/)
+          next unless key == 'Client' || key =~ /^Client@\d+$/
           sanitize_name object, key if player_name
           sanitize_ip object, key if ip
         end
-        order = order.class.new(
+        order.class.new(
           command: order.command,
           data: OpenRAReplay::MiniYaml.dump(object)
         )
       end
-      
+
       def sanitize_time_packet(object)
         start_time = OpenRAReplay::MiniYaml.load_time(object['Root']['StartTimeUtc'])
         epoch = Time.at(0).utc
@@ -96,23 +96,23 @@ module OpenRAReplay
         object['Root']['EndTimeUtc'] = OpenRAReplay::MiniYaml.dump_time(stop_time)
         start_time
       end
-      
+
       def sanitize_time_player(object, key, start_time)
         object[key]['OutcomeTimestampUtc'] = OpenRAReplay::MiniYaml.dump_time(OpenRAReplay::MiniYaml.load_time(object[key]['OutcomeTimestampUtc']) - start_time)
       end
-      
+
       def sanitize_password(object)
         object['Handshake']['Password'] = nil if object['Handshake'] && object['Handshake']['Password']
       end
-      
+
       def sanitize_server_name(object)
         object['GlobalSettings']['ServerName'] = nil if object['GlobalSettings'] && object['GlobalSettings']['ServerName']
       end
-      
+
       def sanitize_ip(object, key)
         object[key]['IpAddress'] = nil if object[key]['IpAddress']
       end
-      
+
       def sanitize_name(object, key)
         return unless !object[key]['IsBot'] && object[key]['Name']
         unless player_map[object[key]['Name']]

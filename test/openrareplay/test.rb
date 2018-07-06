@@ -18,16 +18,16 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-require 'test_helper'
+require_relative 'test_helper'
 
 module OpenRAReplay
-	class Test < Minitest::Test
-	  def test_that_it_has_a_version_number
-		refute_nil ::OpenRAReplay::VERSION
-	  end
+  class Test < Minitest::Test
+    def test_that_it_has_a_version_number
+      refute_nil ::OpenRAReplay::VERSION
+    end
 
-	  def test_it_does_something_useful
-		assert false
-	  end
-	end
+    def test_it_does_something_useful
+      assert false
+    end
+  end
 end

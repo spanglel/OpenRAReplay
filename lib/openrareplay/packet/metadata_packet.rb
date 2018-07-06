@@ -18,7 +18,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-require 'openrareplay/packet/packet'
+require_relative 'packet'
 
 module OpenRAReplay
   class MetadataPacket < Packet
@@ -45,26 +45,23 @@ module OpenRAReplay
       @client_id = -1
       @frame = -1
       @data = byte_array[12..(11 + length)]
-      length_2 = decode_u32 byte_array[(12 + length)..(15 + length)]
-      raise "Appended length isn't correct: #{length_2} vs expected #{length + 4}" unless length_2 == (length + 4)
+      length2 = decode_u32 byte_array[(12 + length)..(15 + length)]
+      raise "Appended length isn't correct: #{length2} vs expected #{length + 4}" unless length2 == (length + 4)
       footer = byte_array[(16 + length)..(19 + length)]
       raise "Metadata footer is not a footer: #{footer.inspect}" unless footer == METADATA_FOOTER
       @orders = []
     end
 
     def construct_byte_array(type)
-      if type == :data
-        @orders = []
-        @client_id = -1
-        @frame = -1
-        @length = data.length
-        @byte_array = METADATA_HEADER + METADATA_VERSION +
-                      (encode_u32 length) +
-                      data.force_encoding('ASCII-8BIT') +
-                      encode_u32(length + 4) + METADATA_FOOTER
-      else
-        raise "#{self.class.name} only supports :data construction!"
-      end
+      raise "#{self.class.name} only supports :data construction!" unless type == :data
+      @orders = []
+      @client_id = -1
+      @frame = -1
+      @length = data.length
+      @byte_array = METADATA_HEADER + METADATA_VERSION +
+                    (encode_u32 length) +
+                    data.force_encoding('ASCII-8BIT') +
+                    encode_u32(length + 4) + METADATA_FOOTER
     end
   end
 end

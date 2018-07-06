@@ -18,11 +18,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-$:.unshift File.dirname(__FILE__)
-
-require 'openrareplay/version'
-require 'openrareplay/miniyaml'
-require 'openrareplay/binary'
-require 'openrareplay/order'
-require 'openrareplay/packet'
-require 'openrareplay/sanitize'
+require_relative 'openrareplay/version'
+require_relative 'openrareplay/miniyaml'
+require_relative 'openrareplay/binary'
+require_relative 'openrareplay/order'
+require_relative 'openrareplay/packet'
+require_relative 'openrareplay/sanitize'
